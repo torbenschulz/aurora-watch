@@ -1,6 +1,6 @@
 # Aurora Watch
 
-Northern lights forecast for Tromsø, Kiruna and Rovaniemi over the next three nights, with flight links from your nearest airport and an email alert on good days.
+Live at **https://aurora.tbsz.io**. Northern lights forecast for Tromsø, Kiruna and Rovaniemi over the next three nights, with flight links from your nearest airport and an email alert on good days.
 
 ## How it works
 

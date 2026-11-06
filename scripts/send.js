@@ -20,7 +20,7 @@ const fs = require("fs");
 
 const env = process.env;
 const MODE = (env.MODE || "auto").trim();
-const SITE = (env.SITE_URL || "").replace(/\/+$/, "") || "https://torbenschulz.github.io/aurora-watch";
+const SITE = (env.SITE_URL || "").replace(/\/+$/, "") || "https://aurora.tbsz.io";
 const ORIGIN = "{{ contact.ORIGIN }}";
 
 if (MODE === "skip") { console.log("Email step skipped."); process.exit(0); }
