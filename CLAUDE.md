@@ -4,7 +4,7 @@ Static northern-lights forecast site for Tromsø, Kiruna and Rovaniemi, served b
 
 ## Layout
 
-- `index.html` — the whole site in one file: CSS, the page, and inline JS. Line ~265 holds `CONFIG` (`brevoFormUrl` is still empty, so the signup form shows "opening soon"). Below it are two large embedded data blobs: `GEO` (~395 airports and ~10k cities, used offline to find a visitor's nearest airport) and `FALLBACK` (a forecast snapshot, used if `forecast.json` fails to load). Don't load all of `index.html` at once. Grep for what you need.
+- `index.html` — the whole site in one file: CSS, the page, and inline JS. Line ~265 holds `CONFIG` (`brevoFormUrl` is the Brevo signup form, double opt-in, list 2). Below it are two large embedded data blobs: `GEO` (~395 airports and ~10k cities, used offline to find a visitor's nearest airport) and `FALLBACK` (a forecast snapshot, used if `forecast.json` fails to load). Don't load all of `index.html` at once. Grep for what you need.
 - Page order: header (title and intro only), then the three city cards, which only show information and have no buttons. Below them is `.actions`, two panels: "Email me on good days" (`#subscribe`), then "Book a flight" (`#book`), which holds the starting-city picker and one row per destination, rendered by `renderBook()`. The signup collects only an email address.
 - `forecast.json` — the current forecast. The page fetches it with a cache-busting query. The workflow overwrites and commits it every day, so don't hand-edit it.
 - `scripts/refresh.py` — builds `forecast.json`. Python standard library only.
