@@ -13,15 +13,14 @@
 //                   skip  = do nothing
 //   TEST_EMAIL      address for MODE=test
 //
-// Each subscriber's flight links use their own starting airport through the
-// Brevo contact attribute ORIGIN, so one campaign covers everyone.
+// One campaign goes to the whole list. The email shows the verdicts and links to
+// the site, where readers pick their starting city and find flights.
 // Pure Node 18+: no dependencies.
 const fs = require("fs");
 
 const env = process.env;
 const MODE = (env.MODE || "auto").trim();
 const SITE = (env.SITE_URL || "").replace(/\/+$/, "") || "https://aurora.tbsz.io";
-const ORIGIN = "{{ contact.ORIGIN }}";
 
 if (MODE === "skip") { console.log("Email step skipped."); process.exit(0); }
 if (!env.BREVO_API_KEY) { console.log("No BREVO_API_KEY secret yet, so no emails. The forecast was still updated."); process.exit(0); }
@@ -42,19 +41,8 @@ const C = { sky: "#0a1018", card: "#111a26", line: "#233142", ink: "#e6edf3", in
 const FONT = "Helvetica,Arial,sans-serif", MONO = "'SFMono-Regular',Menlo,Consolas,monospace";
 const esc = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
 const today = new Date().toISOString().slice(0, 10);
-const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const fmtNight = (iso) => new Date(iso + "T12:00:00Z").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
 const kpText = (n) => n.kp == null ? "–" : (n.kpSource === "outlook" ? "≈" : "") + n.kp.toFixed(1);
-
-function links(city) {
-  const good = city.nights.filter((n) => n.good).map((n) => n.date).filter((d) => d >= today);
-  const date = good[0] || addDays(today, 1);
-  return {
-    date,
-    sky: `https://www.skyscanner.net/transport/flights/${ORIGIN}/${city.iata.toLowerCase()}/${date.slice(2).replace(/-/g, "")}/`,
-    google: `https://www.google.com/travel/flights?q=One%20way%20flights%20from%20${ORIGIN}%20to%20${city.iata}%20on%20${date}`,
-  };
-}
 
 function summary(c) {
   const clear = c.nights.filter((n) => n.cloud != null && n.cloud <= th.cloud).length;
@@ -92,14 +80,6 @@ function card(c) {
       <td style="${td}text-align:right;font:bold 13px ${FONT};color:${n.good ? C.aurora : C.bad};">${n.good ? "✓" : "×"}</td>
     </tr>`;
   }
-  const L = links(c);
-  // Flight links only for subscribers who gave a starting airport.
-  const fly = `{% if contact.ORIGIN %}<tr><td colspan="2" style="padding-top:14px;">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="${good ? C.aurora : C.card}" style="border-radius:8px;background-color:${good ? C.aurora : C.card};${good ? "" : "border:1px solid #33465c;"}">
-        <a href="${L.sky}" style="display:block;padding:12px 14px;font:bold 14px ${FONT};text-decoration:none;color:${good ? C.sky : C.ink};">Flights ${ORIGIN} → ${esc(c.iata)} ↗</a>
-      </td></tr></table>
-      <div style="padding-top:8px;text-align:center;font:12px ${FONT};color:${C.ink3};">Departing ${esc(fmtNight(L.date))} · Skyscanner · or <a href="${L.google}" style="color:${C.ink2};">Google Flights</a></div>
-    </td></tr>{% endif %}`;
   return `<tr><td style="padding:0 0 14px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="${C.card}" style="background-color:${C.card};border:1px solid ${good ? C.auroraDim : C.line};border-radius:12px;">
   <tr><td style="padding:18px 18px 16px;">
@@ -118,7 +98,6 @@ function card(c) {
           ${rows}
         </table>
       </td></tr>
-      ${fly}
     </table>
   </td></tr></table>
 </td></tr>`;
@@ -141,13 +120,18 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewp
 <tr><td style="padding:4px 4px 18px;">
   <div style="font:11px ${MONO};letter-spacing:2px;color:${C.aurora};">AURORA WATCH · 69°N</div>
   <div style="font:bold 26px ${FONT};color:${C.ink};padding-top:8px;">${esc(headline)}</div>
-  <div style="font:14px/1.5 ${FONT};color:${C.ink2};padding-top:6px;">Strong aurora (Kp ${th.kp}+) and clear skies (≤${th.cloud}% cloud) on at least 2 of the next 3 nights.{% if contact.ORIGIN %} Flight links start from ${ORIGIN}.{% endif %}</div>
+  <div style="font:14px/1.5 ${FONT};color:${C.ink2};padding-top:6px;">Strong aurora (Kp ${th.kp}+) and clear skies (≤${th.cloud}% cloud) on at least 2 of the next 3 nights.</div>
   <div style="font:12px ${MONO};color:${C.ink3};padding-top:10px;">Nights of ${esc(fmtNight(fc.nights[0]))} – ${esc(fmtNight(fc.nights[fc.nights.length - 1]))}${hasOutlook ? " · ≈ from NOAA's 27-day outlook" : ""}</div>
 </td></tr>
 ${ordered.map(card).join("\n")}
+<tr><td style="padding:6px 0 18px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" bgcolor="${C.aurora}" style="border-radius:10px;background-color:${C.aurora};">
+    <a href="${esc(SITE)}" style="display:block;padding:15px 18px;font:bold 16px ${FONT};text-decoration:none;color:${C.sky};">See the forecast and find flights ↗</a>
+  </td></tr></table>
+</td></tr>
 <tr><td style="padding:8px 4px 0;font:12px/1.6 ${FONT};color:${C.ink3};">
   Forecast updated ${esc(updated)}. Sources: NOAA SWPC Kp forecast, MET Norway cloud forecast.
-  <a href="${esc(SITE)}" style="color:${C.ink2};">Open Aurora Watch</a><br><br>
+<br><br>
   You get this because you subscribed on ${esc(SITE.replace(/^https?:\/\//, ""))}. <a href="{{ unsubscribe }}" style="color:${C.ink2};">Unsubscribe</a>
 </td></tr></table></td></tr></table>
 </body></html>`;

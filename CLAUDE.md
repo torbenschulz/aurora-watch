@@ -5,7 +5,7 @@ Static northern-lights forecast site for Tromsø, Kiruna and Rovaniemi, served b
 ## Layout
 
 - `index.html` — the whole site in one file: CSS, the page, and inline JS. Line ~265 holds `CONFIG` (`brevoFormUrl` is still empty, so the signup form shows "opening soon"). Below it are two large embedded data blobs: `GEO` (~395 airports and ~10k cities, used offline to find a visitor's nearest airport) and `FALLBACK` (a forecast snapshot, used if `forecast.json` fails to load). Don't load all of `index.html` at once. Grep for what you need.
-- Page order: header (title and intro only), then the three city cards, which only show information and have no buttons. Below them is `.actions`, two panels: "Email me on good days" (`#subscribe`), then "Book a flight" (`#book`), which holds the starting-city picker and one row per destination, rendered by `renderBook()`. The signup sends the airport chosen in the booking panel.
+- Page order: header (title and intro only), then the three city cards, which only show information and have no buttons. Below them is `.actions`, two panels: "Email me on good days" (`#subscribe`), then "Book a flight" (`#book`), which holds the starting-city picker and one row per destination, rendered by `renderBook()`. The signup collects only an email address.
 - `forecast.json` — the current forecast. The page fetches it with a cache-busting query. The workflow overwrites and commits it every day, so don't hand-edit it.
 - `scripts/refresh.py` — builds `forecast.json`. Python standard library only.
 - `scripts/send.js` — sends the daily Brevo campaign, or a test email. Node 18+, no dependencies.
@@ -28,7 +28,7 @@ Static northern-lights forecast site for Tromsø, Kiruna and Rovaniemi, served b
 
 ## Email (send.js)
 
-- One Brevo campaign goes to the whole list. Flight links are personalised per subscriber with `{{ contact.ORIGIN }}`, the airport code the signup form stores. Brevo handles unsubscribes and double opt-in.
+- One Brevo campaign goes to the whole list (list ID 2, sender alerts@tbsz.io). It shows the three city cards and one call-to-action button to the site; there are no flight links in the email, and subscribers give only their email address. Brevo handles unsubscribes and double opt-in.
 - The HTML is table-based with inline styles. Set every background as both a `bgcolor` attribute and `background-color`. Some clients strip the CSS backgrounds and keep the light text colours, which made an earlier version unreadable. Don't use the `background:` shorthand or images.
 
 ## Flight links

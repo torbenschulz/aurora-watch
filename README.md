@@ -8,8 +8,8 @@ Live at **https://aurora.tbsz.io**. Northern lights forecast for Tromsø, Kiruna
 |---|---|
 | The page | `index.html`, served by GitHub Pages |
 | Daily forecast | `.github/workflows/daily.yml` runs `scripts/refresh.py` every morning, 1 October to 31 March, and commits `forecast.json`. The page reads that file. |
-| Subscribers | A Brevo contact list. The page's form posts to a Brevo signup form (double opt-in), storing the email and the `ORIGIN` airport code. |
-| Alert emails | `scripts/send.js` sends one Brevo campaign to the list when at least one city is Good. Flight links are personalised per subscriber with `{{ contact.ORIGIN }}`. Brevo handles unsubscribes. |
+| Subscribers | A Brevo contact list. The page's form posts to a Brevo signup form (double opt-in), storing only the email address. |
+| Alert emails | `scripts/send.js` sends one Brevo campaign to the list when at least one city is Good. It shows the verdicts and one button to the site, where readers find flights. Brevo handles unsubscribes. |
 
 A city is **Good** when at least two of the next three nights have Kp ≥ 3 (NOAA SWPC) and ≤ 40 % average cloud cover (MET Norway) between 18:00 and 03:00 local time.
 
@@ -17,9 +17,8 @@ A city is **Good** when at least two of the next three nights have Kp ≥ 3 (NOA
 
 1. **GitHub Pages:** Settings → Pages → Deploy from a branch → `main` / root.
 2. **Brevo**
-   - Contacts → Settings → Contact attributes: add a text attribute `ORIGIN`.
    - Contacts → Lists: create a list, note its numeric ID.
-   - Contacts → Forms: create a signup form with fields Email and ORIGIN, adding people to that list, with double opt-in. Copy the form's `action` URL from its HTML embed code into `CONFIG.brevoFormUrl` near the top of the script in `index.html`.
+   - Contacts → Forms: create a signup form with the Email field only, adding people to that list, with double opt-in. Copy the form's `action` URL from its HTML embed code into `CONFIG.brevoFormUrl` near the top of the script in `index.html`.
    - Senders, domains & dedicated IPs: authenticate your domain (DNS records) and add the sender address.
    - SMTP & API → API keys: create a key.
 3. **GitHub Actions settings** (Settings → Secrets and variables → Actions)
