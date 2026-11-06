@@ -1,9 +1,13 @@
 name: Daily forecast and alerts
 
 on:
-  # 06:00 UTC (06:00 in the UK in winter, 07:00 during October summer time), 1 October to 31 March.
+  # Target: 06:00 London time, 1 October to 31 March.
+  # GitHub cron is UTC-only, and scheduled runs can be delayed or dropped (most often
+  # on the hour). So it fires every 30 minutes from 05:03 to 07:33 UTC, and the
+  # "Check the time in London" step below lets only the first slot at or after
+  # 06:00 London do the work. Later slots are retries if that one was skipped.
   schedule:
-    - cron: "0 6 * 1-3,10-12 *"
+    - cron: "3,33 5,6,7 * 1-3,10-12 *"
   # Run it by hand from the Actions tab, e.g. to send yourself a test email.
   workflow_dispatch:
     inputs:
@@ -18,6 +22,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: daily-forecast
@@ -34,22 +39,57 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Scheduled runs only: go ahead once it is 06:00 or later in London (before 10:00),
+      # and only if today's 06:00 update has not happened yet. Manual runs always go.
+      - name: Check the time in London
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          python3 -I - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          from datetime import datetime, timezone
+          from zoneinfo import ZoneInfo
+          ldn = ZoneInfo("Europe/London")
+          now = datetime.now(timezone.utc).astimezone(ldn)
+          due = now.replace(hour=6, minute=0, second=0, microsecond=0)
+          last = datetime.fromisoformat(json.load(open("forecast.json"))["updatedAt"].replace("Z", "+00:00")).astimezone(ldn)
+          if os.environ["EVENT"] != "schedule":
+              go, why = True, "manual run"
+          elif not (due <= now < due.replace(hour=10)):
+              go, why = False, f"London time is {now:%H:%M}, outside 06:00-10:00"
+          elif last >= due:
+              go, why = False, f"already updated today at {last:%H:%M} London"
+          else:
+              go, why = True, f"due: London time is {now:%H:%M}"
+          print(f"go={'true' if go else 'false'}")
+          import sys; print(why, file=sys.stderr)
+          PY
+
       - name: Fetch the forecast
+        if: steps.gate.outputs.go == 'true'
         run: |
           python3 -I scripts/refresh.py forecast.json || { sleep 60; python3 -I scripts/refresh.py forecast.json; }
 
       - name: Publish it on the site
+        if: steps.gate.outputs.go == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git config user.name "aurora-watch-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add forecast.json
-          git diff --cached --quiet || { git commit -m "Forecast $(date -u +%Y-%m-%d)"; git push; }
+          git diff --cached --quiet || { git commit -m "Forecast $(date -u +%Y-%m-%d)"; git pull --rebase; git push; }
+          # Ask Pages to rebuild, in case a push made with the workflow token does not trigger it.
+          gh api -X POST "repos/${{ github.repository }}/pages/builds" >/dev/null || echo "Pages rebuild request failed (the push may still trigger it)."
 
       - uses: actions/setup-node@v4
+        if: steps.gate.outputs.go == 'true'
         with:
           node-version: "20"
 
       - name: Email subscribers
+        if: steps.gate.outputs.go == 'true'
         env:
           BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
           BREVO_LIST_ID: ${{ vars.BREVO_LIST_ID }}
