@@ -1,0 +1,121 @@
+{
+ "updatedAt": "2026-11-05T23:18:25Z",
+ "thresholds": {
+  "kp": 3.0,
+  "cloud": 40.0,
+  "window": "18:00–03:00 local"
+ },
+ "sources": {
+  "aurora": "NOAA SWPC planetary Kp forecast (3-hour), 27-day outlook beyond it",
+  "clouds": "MET Norway Locationforecast"
+ },
+ "nights": [
+  "2026-11-06",
+  "2026-11-07",
+  "2026-11-08"
+ ],
+ "cities": [
+  {
+   "id": "tromso",
+   "name": "Tromsø",
+   "country": "Norway",
+   "iata": "TOS",
+   "nights": [
+    {
+     "date": "2026-11-06",
+     "kp": 5.0,
+     "kpSource": "3h",
+     "cloud": 100,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-07",
+     "kp": 4.0,
+     "kpSource": "3h",
+     "cloud": 100,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-08",
+     "kp": 2.0,
+     "kpSource": "outlook",
+     "cloud": 100,
+     "good": false,
+     "hasData": true
+    }
+   ],
+   "goodNights": 0,
+   "verdict": "bad"
+  },
+  {
+   "id": "kiruna",
+   "name": "Kiruna",
+   "country": "Sweden",
+   "iata": "KRN",
+   "nights": [
+    {
+     "date": "2026-11-06",
+     "kp": 5.0,
+     "kpSource": "3h",
+     "cloud": 62,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-07",
+     "kp": 4.0,
+     "kpSource": "3h",
+     "cloud": 89,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-08",
+     "kp": 2.0,
+     "kpSource": "outlook",
+     "cloud": 96,
+     "good": false,
+     "hasData": true
+    }
+   ],
+   "goodNights": 0,
+   "verdict": "bad"
+  },
+  {
+   "id": "rovaniemi",
+   "name": "Rovaniemi",
+   "country": "Finland",
+   "iata": "RVN",
+   "nights": [
+    {
+     "date": "2026-11-06",
+     "kp": 5.0,
+     "kpSource": "3h",
+     "cloud": 72,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-07",
+     "kp": 4.0,
+     "kpSource": "3h",
+     "cloud": 98,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-08",
+     "kp": 2.0,
+     "kpSource": "outlook",
+     "cloud": 79,
+     "good": false,
+     "hasData": true
+    }
+   ],
+   "goodNights": 0,
+   "verdict": "bad"
+  }
+ ]
+}

@@ -1,0 +1,61 @@
+name: Daily forecast and alerts
+
+on:
+  # 06:00 UTC (06:00 in the UK in winter, 07:00 during October summer time), 1 October to 31 March.
+  schedule:
+    - cron: "0 6 * 1-3,10-12 *"
+  # Run it by hand from the Actions tab, e.g. to send yourself a test email.
+  workflow_dispatch:
+    inputs:
+      email:
+        description: "Email: test = one preview to the address below, list = real alert if a city is Good, none = forecast only"
+        type: choice
+        options: [test, list, none]
+        default: test
+      test_email:
+        description: "Address for the test email"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-forecast
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fetch the forecast
+        run: |
+          python3 -I scripts/refresh.py forecast.json || { sleep 60; python3 -I scripts/refresh.py forecast.json; }
+
+      - name: Publish it on the site
+        run: |
+          git config user.name "aurora-watch-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add forecast.json
+          git diff --cached --quiet || { git commit -m "Forecast $(date -u +%Y-%m-%d)"; git push; }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Email subscribers
+        env:
+          BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+          BREVO_LIST_ID: ${{ vars.BREVO_LIST_ID }}
+          SENDER_EMAIL: ${{ vars.SENDER_EMAIL }}
+          SENDER_NAME: ${{ vars.SENDER_NAME }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          MODE: ${{ github.event_name == 'schedule' && 'auto' || (inputs.email == 'list' && 'auto') || (inputs.email == 'none' && 'skip') || 'test' }}
+          TEST_EMAIL: ${{ inputs.test_email }}
+        run: node scripts/send.js forecast.json
