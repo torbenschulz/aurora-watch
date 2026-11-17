@@ -39,7 +39,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      # Scheduled runs only: go ahead once it is 06:00 or later in London (before 10:00),
+      # Scheduled runs only: go ahead once it is 06:00 or later in London (any time that day,
+      # because GitHub often starts scheduled runs hours late),
       # and only if today's 06:00 update has not happened yet. Manual runs always go.
       - name: Check the time in London
         id: gate
@@ -56,8 +57,8 @@ jobs:
           last = datetime.fromisoformat(json.load(open("forecast.json"))["updatedAt"].replace("Z", "+00:00")).astimezone(ldn)
           if os.environ["EVENT"] != "schedule":
               go, why = True, "manual run"
-          elif not (due <= now < due.replace(hour=10)):
-              go, why = False, f"London time is {now:%H:%M}, outside 06:00-10:00"
+          elif now < due:
+              go, why = False, f"London time is {now:%H:%M}, before 06:00"
           elif last >= due:
               go, why = False, f"already updated today at {last:%H:%M} London"
           else:

@@ -21,7 +21,7 @@ Static northern-lights forecast site for Tromsø, Kiruna and Rovaniemi, served b
 
 ## Daily schedule (daily.yml)
 
-- The target is 06:00 London, 1 October to 31 March. GitHub cron is UTC-only and often delays or drops runs, especially on the hour. So the cron fires at `3,33 5,6,7` UTC, and the "Check the time in London" step lets a scheduled run continue only if London time is 06:00–10:00 and `forecast.json`'s `updatedAt` is before 06:00 London today. This handles summer time, retries dropped slots, and keeps emails to at most one per day. Keep this gate if you change the cron.
+- The target is 06:00 London, 1 October to 31 March. GitHub cron is UTC-only and often delays or drops runs, especially on the hour. So the cron fires at `3,33 5,6,7` UTC, and the "Check the time in London" step lets a scheduled run continue only if London time is 06:00 or later (any time that day, since GitHub has started scheduled runs 5–8 hours late) and `forecast.json`'s `updatedAt` is before 06:00 London today. This handles summer time, retries dropped slots, and keeps emails to at most one per day. Keep this gate if you change the cron.
 - Manual runs (`workflow_dispatch`) skip the gate. Input `email`: `test` sends one preview to `test_email`, `list` sends the real alert if a city is Good, `none` updates the forecast only.
 - After committing `forecast.json`, the job also asks Pages to rebuild (`pages: write`).
 - Secrets and variables: secret `BREVO_API_KEY`; variables `BREVO_LIST_ID`, `SENDER_EMAIL`, `SENDER_NAME`, `SITE_URL`. Without the API key, `send.js` exits 0 and the forecast still updates.
