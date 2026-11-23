@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-22T13:14:42Z",
+ "updatedAt": "2026-11-23T15:52:00Z",
  "thresholds": {
   "kp": 3.0,
   "cloud": 40.0,
@@ -10,9 +10,9 @@
   "clouds": "MET Norway Locationforecast"
  },
  "nights": [
-  "2026-11-23",
   "2026-11-24",
-  "2026-11-25"
+  "2026-11-25",
+  "2026-11-26"
  ],
  "cities": [
   {
@@ -21,14 +21,6 @@
    "country": "Norway",
    "iata": "TOS",
    "nights": [
-    {
-     "date": "2026-11-23",
-     "kp": 3.67,
-     "kpSource": "3h",
-     "cloud": 96,
-     "good": false,
-     "hasData": true
-    },
     {
      "date": "2026-11-24",
      "kp": 1.67,
@@ -39,9 +31,17 @@
     },
     {
      "date": "2026-11-25",
-     "kp": 2.0,
+     "kp": 2.33,
+     "kpSource": "3h",
+     "cloud": 44,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-26",
+     "kp": 4.0,
      "kpSource": "outlook",
-     "cloud": 96,
+     "cloud": 90,
      "good": false,
      "hasData": true
     }
@@ -56,26 +56,26 @@
    "iata": "KRN",
    "nights": [
     {
-     "date": "2026-11-23",
-     "kp": 3.67,
-     "kpSource": "3h",
-     "cloud": 80,
-     "good": false,
-     "hasData": true
-    },
-    {
      "date": "2026-11-24",
      "kp": 1.67,
      "kpSource": "3h",
-     "cloud": 83,
+     "cloud": 78,
      "good": false,
      "hasData": true
     },
     {
      "date": "2026-11-25",
-     "kp": 2.0,
+     "kp": 2.33,
+     "kpSource": "3h",
+     "cloud": 100,
+     "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-26",
+     "kp": 4.0,
      "kpSource": "outlook",
-     "cloud": 81,
+     "cloud": 85,
      "good": false,
      "hasData": true
     }
@@ -90,27 +90,27 @@
    "iata": "RVN",
    "nights": [
     {
-     "date": "2026-11-23",
-     "kp": 3.67,
-     "kpSource": "3h",
-     "cloud": 6,
-     "good": true,
-     "hasData": true
-    },
-    {
      "date": "2026-11-24",
      "kp": 1.67,
      "kpSource": "3h",
-     "cloud": 38,
+     "cloud": 47,
      "good": false,
      "hasData": true
     },
     {
      "date": "2026-11-25",
-     "kp": 2.0,
-     "kpSource": "outlook",
-     "cloud": 2,
+     "kp": 2.33,
+     "kpSource": "3h",
+     "cloud": 3,
      "good": false,
+     "hasData": true
+    },
+    {
+     "date": "2026-11-26",
+     "kp": 4.0,
+     "kpSource": "outlook",
+     "cloud": 4,
+     "good": true,
      "hasData": true
     }
    ],
